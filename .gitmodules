@@ -1,0 +1,6 @@
+[submodule "submodules/moai"]
+	path = submodules/moai
+	url = https://github.com/umegaya/moai-dev.git
+[submodule "submodules/yue"]
+	path = submodules/yue
+	url = https://github.com/umegaya/yue.git
