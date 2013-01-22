@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+if ARGV.length < 1 then
+	puts "usage: toad (command) [args...]"
+	puts "detail help for each command: toad (command) help"
+end
+
+ARGV[0] = ARGV[0] + ".rb"
+
+system("ruby scripts/#{ARGV.join(' ')}")
