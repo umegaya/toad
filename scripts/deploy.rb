@@ -1,11 +1,10 @@
 require './scripts/setup.rb'
 
-if ARGV.length < 1 or ARGV[0] == 'help' then
-	log "toad deploy (package name)"
+if ARGV.length == 1 and ARGV[0] == 'help' then
+	log "toad deploy (package name) [server|android|ios]"
 	exit
 end
 
-path = Toad::Util::find_project_from_package_name(ARGV[0])
-
-# currently, I need to concentrate to run server instance which execute specified lua server code with yue.
+project = Toad::Project.open(CONFIG, ARGV[0])
+Toad::Operator.new(project).deploy(CONFIG, ARGV.length > 1 ? ARGV[1] : nil)
 

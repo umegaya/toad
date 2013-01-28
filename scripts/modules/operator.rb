@@ -35,7 +35,7 @@ module Toad
 			data = IO.read(config.cloud.userdata)
 			return data.
 				gsub(/%REVISION%/, config.project.toad_version).
-				gsub(/%USER%/, config.cloud.user).
+				gsub(/%DEPLOY_USER%/, config.cloud.user).
 				gsub(/%AWS_ACCESS_KEY%/, ENV['AWS_ACCESS_KEY']).
 				gsub(/%AWS_SECRET_KEY%/, ENV['AWS_SECRET_KEY'])
 		end
