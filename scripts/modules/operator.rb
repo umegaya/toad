@@ -16,6 +16,17 @@ module Toad
 				end
 			end
 		end
+		def login(what)
+			case what.to_sym
+			when :server
+				instances.login
+			when :android
+				sh "adb shell"
+			when :ios
+				raise ArgumentError, "ios login not supports"
+			end
+				
+		end
 		def instances
 			id = Config.instance.project.instance_id
 			return id ? Toad::Cloud::Instance.get(id) : nil

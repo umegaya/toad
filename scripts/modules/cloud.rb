@@ -165,7 +165,7 @@ FINISH_SH
 				end
 					
 			end
-			def wait_cloud_init(timeout = 120)
+			def wait_cloud_init(timeout = 300)
 				while true
 					begin
 						out = ssh "cat #{INIT_FILE_PATH}", true
@@ -193,6 +193,9 @@ FINISH_SH
 			def ssh(command, output = false, keyfile = nil)
 				wait_ssh_enable
 				sshraw(command, output, keyfile)
+			end
+			def login
+				ssh("")
 			end
 			def sshraw(command, output = false, keyfile = nil)
 				keyfile = (keyfile or Config.instance.cloud.keyfile)

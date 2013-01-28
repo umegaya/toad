@@ -104,8 +104,8 @@ module Toad
 				project = self.new(path)
 				project.create(config, pkgname)
 			end
-			Config.instance.open("#{path}/config/*")
-			Config.instance.open("#{path}/config/local/*")
+			Config.instance.open("#{project.path}/config/*")
+			Config.instance.open("#{project.path}/config/local/*")
 			return project
 		end
                 def self.init_server(config)
