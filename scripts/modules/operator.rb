@@ -78,7 +78,7 @@ module Toad
 					raise e
 				end
 			end
-			ins.wait_cloud_init if out != "/usr/local/bin/yue"
+			ins.wait_cloud_init if ((out == nil) or (out.chop != "/usr/local/bin/yue"))
 			begin
 				ins.ssh "sudo stop yue"
 			rescue CommandError => e
@@ -86,12 +86,12 @@ module Toad
 			end
 			ins.ssh "sudo start yue"
 		end
-		def deploy_android
+		def deploy_android(config)
 			Dir.chdir("#{@project.path}/client/android/") do |path|
-				sh "./run_host.sh"
+				sh "./run-host.sh"
 			end
 		end
-		def deploy_ios
+		def deploy_ios(config)
 			puts "iOS not supported yet"
 		end
 		def cleanup

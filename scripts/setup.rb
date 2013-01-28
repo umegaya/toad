@@ -8,8 +8,7 @@ end
 config = Toad::Config.new
 Toad::Config.set_instance(config)
 config.open("./config/default/*")
-config.open("./config/*")
-config.open("./config/local/*")
+config.open("./config/common/*")
 
 
 # store it as constant 'CONFIG'
