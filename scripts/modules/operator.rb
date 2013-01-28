@@ -35,6 +35,7 @@ module Toad
 			data = IO.read(config.cloud.userdata)
 			return data.
 				gsub(/%REVISION%/, config.project.toad_version).
+				gsub(/%USER%/, config.cloud.user).
 				gsub(/%AWS_ACCESS_KEY%/, ENV['AWS_ACCESS_KEY']).
 				gsub(/%AWS_SECRET_KEY%/, ENV['AWS_SECRET_KEY'])
 		end
@@ -79,15 +80,11 @@ module Toad
 			end
 			ins.wait_cloud_init if out != "/usr/local/bin/yue"
 			begin
-				ins.ssh "killall yue"
+				ins.ssh "sudo stop yue"
 			rescue CommandError => e
 				log e # maybe no such process
 			end
-			ins.ssh <<CMD
-				export AWS_ACCESS_KEY='#{ENV['AWS_ACCESS_KEY']}' &&
-				export AWS_SECRET_KEY='#{ENV['AWS_SECRET_KEY']}' &&
-				yue ~/server/main.lua &
-CMD
+			ins.ssh "sudo start yue"
 		end
 		def deploy_android
 			Dir.chdir("#{@project.path}/client/android/") do |path|
