@@ -30,7 +30,7 @@ class TestProject < Tester
 		setting_file = "#{PROJECT_PATH}/config/project"
 		assert(File.exists?(setting_file), "#{setting_file} not exist")
 		assert(config.project.pkgname == PACKAGE_NAME, "#{config.project.pkgname} and #{PACKAGE_NAME} should be same")
-		rev = `git show -s --format=%H`
+		rev = (`git show -s --format=%H`).chop
 		assert(config.project.toad_version == rev, "#{config.project.toad_version} and #{rev} should be same")
 		@r.add_setting({:instance_id => 'i-abcdefgh'})
 		assert(config.project.instance_id == 'i-abcdefgh', 

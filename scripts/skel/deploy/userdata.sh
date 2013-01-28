@@ -12,6 +12,6 @@ sudo apt-get install -y g++
 git clone git://github.com/umegaya/toad.git
 cd ./toad
 git checkout -b initialize %REVISION%
+export AWS_ACCESS_KEY=%AWS_ACCESS_KEY%
+export AWS_SECRET_KEY=%AWS_SECRET_KEY%
 ./toad cloudinit
-
-

@@ -164,6 +164,7 @@ module Toad
 					end
 				end
 				sh "cp -rv #{deploy_tmpl} ./#{@path}/server/"
+				sh "cp #{Config.instance.cloud.keyfile} ./#{@path}/server/key.pem"
 				# write setting
 				init_setting(config, pkgname)
 
@@ -180,7 +181,7 @@ module Toad
 		end
 		def init_setting(config, pkgname)
 			c = Config.new(false)
-			c["toad_version"] = sh "git show -s --format=%H", true
+			c["toad_version"] = (sh "git show -s --format=%H", true).chop
 			c["pkgname"] = pkgname
 			config["project"] = c
 			config.write "./#{@path}/config"

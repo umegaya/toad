@@ -10,7 +10,7 @@ class TestOperator < Tester
 		@operator = nil
 	end
 	def cleanup
-		@operator.cleanup if @operator
+		#@operator.cleanup if @operator
 		@operator = nil
 	end
 	PACKAGE_NAME = "com.toad.test"

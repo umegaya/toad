@@ -22,8 +22,10 @@ module Toad
 		end
 		def extract_userdata(config)
 			data = IO.read(config.cloud.userdata)
-			data = data.gsub(/%REVISION%/, config.project.toad_version)
-			return data
+			return data.
+				gsub(/%REVISION%/, config.project.toad_version).
+				gsub(/%AWS_ACCESS_KEY%/, ENV['AWS_ACCESS_KEY']).
+				gsub(/%AWS_SECRET_KEY%/, ENV['AWS_SECRET_KEY'])
 		end
 		def deploy_server(config)
 			ins = instances
@@ -54,7 +56,7 @@ module Toad
 			ins.rsync(tmp)
 		end
 		def update_server(ins)
-			rsync(ins, { "src/server" => "~/server" })
+			rsync(ins, { "src/server" => "~/" })
 			begin
 				out = ins.ssh "which yue", true
 			rescue CommandError => e
@@ -70,7 +72,11 @@ module Toad
 			rescue CommandError => e
 				log e # maybe no such process
 			end
-			ins.ssh "yue ~/server/main.lua &"
+			ins.ssh <<CMD
+				export AWS_ACCESS_KEY='#{ENV['AWS_ACCESS_KEY']}' &&
+				export AWS_SECRET_KEY='#{ENV['AWS_SECRET_KEY']}' &&
+				yue ~/server/main.lua &
+CMD
 		end
 		def deploy_android
 			Dir.chdir("#{@project.path}/client/android/") do |path|

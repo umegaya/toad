@@ -31,6 +31,11 @@ class TestCloud < Tester
 		@r.rsync({"./test/resource/" => "~/rsc/"})
 		out = @r.ssh "cat ~/rsc/test.rb", true
 		assert(out.chop == "p \"hello toad!\"", "file copy and ssh not run correctly [#{out.chop}]")
+		begin
+			out = @r.ssh "cat ~/rsc/modules/config.rb"
+		rescue
+			assert(false, "symbolic link not copied")
+		end
 		@r.wait_cloud_init
 		out = @r.ssh "cat /tmp/hello.txt", true
 		assert(out.chop == "this is toad instance", "userdata.sh not executed [#{out.chop}]")

@@ -204,7 +204,7 @@ FINISH_SH
 				keyfile = (keyfile or Config.instance.cloud.keyfile)
 				user = Config.instance.cloud.user
 				list.each do |k,v|
-					Kernel.sh "rsync -avz #{k} -e 'ssh #{SSH_OPT} -i #{keyfile}' #{user}@#{public_ip}:#{v}"
+					Kernel.sh "rsync -avzL #{k} -e 'ssh #{SSH_OPT} -i #{keyfile}' #{user}@#{public_ip}:#{v}"
 				end
 			end
                 end
