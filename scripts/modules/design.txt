@@ -1,0 +1,51 @@
+
+Toad
+	Config			:	configuration of toad itself
+	Project			:	represents a project created by toad init
+		Setting 	:	project setting
+	Operator		:	management project deploy
+	Cloud			:	cloud (IaaS) controller for toad		
+		Instance	:	represents a created instance by toad
+	+ kernel mixin
+
+
+Config
+	load(path)		:	load configuration
+	[]= (k, v)		:	set value to config
+	[]  (k)			:	get value from config by using hash syntax
+	method_missing		:	achive syntax like config.a.b
+
+
+Project
+	initialize(name, path)		:	create new project (modify file system) 
+						or load existing project to given path
+	initialize(name)		:	load existing project searched by name
+	deploy(instances = nil)		:	create instance and initial deploy this project if instances == nil
+						otherwise update specified instances (array of Instance)
+	setting				:	get project setting
+
+Operator
+	initialize(project)		:	create operator of given project
+	instances			:	get array of instances which hosts this proejct
+	deploy				:	create instance and initial deploy this project if # of instaces <= 0
+						otherwise update all instance
+	create				:	create instance and initial deploy
+	update(instances = nil)		:	update specified (or all if instance == nil) instances
+
+Setting
+	initialize(path)		:	create new project setting (modify file system)
+						or load existing setting to given path
+	repo				:	get project repository url
+	instances			:	get instances identifier which hosts this project
+
+Cloud
+	run(image, type, userdata)	:	create new instance with specified userdata(initialize script), image, type.
+						returns Instance
+	stop(instances)			:	stop specified instance
+
+Instance
+	image				:	get image identifier of this instance (ami for AWS)
+	type				:	get instance type of this instance (t1.micro for AWS)
+	run				:	run this instace
+	stop				:	stop this instance
+	addr				:	get address or url of this instance (ssh-able one)

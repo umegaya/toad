@@ -1,0 +1,2 @@
+client_sdk="./submodules/moai"
+server_sdk="./submodules/yue"

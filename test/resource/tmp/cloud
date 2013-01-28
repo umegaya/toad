@@ -1,0 +1,7 @@
+image="ami-f8a813f9"
+type="t1.micro"
+keypair="gsg-keypair"
+keyfile="/another/path/to/pem"
+security="default"
+user="ubuntu"
+userdata="./scripts/skel/deploy/userdata.sh"

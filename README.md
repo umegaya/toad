@@ -37,6 +37,9 @@ toad deploy [server|client (android|ios)]	# deploy server or client or both code
 
 firststeps
 ==========
+
+- prerequisite: android ndk, android sdk, amazon ec2 tools, xcode
+
 - git clone git@github.com/umegaya/toad.git
 - into cloned directory
 - ./toad init [package name] (caution: it will install scons,luajit,luarocks and yue if you dont have these installed)
