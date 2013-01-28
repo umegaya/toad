@@ -164,7 +164,7 @@ module Toad
 					end
 				end
 				sh "cp -rv #{deploy_tmpl} ./#{@path}/server/"
-				sh "cp #{Config.instance.cloud.keyfile} ./#{@path}/server/key.pem"
+				sh "cp #{Config.instance.cloud.keyfile} ./#{@path}/src/server/key.pem"
 				# write setting
 				init_setting(config, pkgname)
 
