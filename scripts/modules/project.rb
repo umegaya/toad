@@ -1,81 +1,10 @@
 require 'digest/md5'
 module Toad
 	class Project
-		class Setting
-			PATH = ".setting"
-			PKGNAME = "pkgname"
-			VERSION = "version"
-			attr :path
-			attr :pkgname
-			attr :version
-			def initialize(path)
-				@path = path
-				@pkgname = nil
-				@version = nil
-			end
-			def create(pkgname, config)
-				path = fullpath
-				begin
-					f = File.open(path, "r")
-				rescue Errno::ENOENT
-					f = File.open(path, "w")	
-					@pkgname = pkgname
-					@version = config.toad.version
-					write_file(f)
-                        		f.close
-					return self
-				else
-					read_file(f)
-					f.close
-					return self
-				end
-			end
-			def fullpath
-				"#{path}/#{PATH}"
-			end
-			def read_file(f)
-				f.rewind
-				res = find_in_file(f, "#{PKGNAME}=(.*)")
-				raise "invalid setting file (#{PKGNAME}) #{f} [#{res}]" if not res
-				@pkgname = res[1]
-				res = find_in_file(f, "#{VERSION}=(.*)")
-				raise "invalid setting file (#{VERSION}) #{f} [#{res}]" if not res
-				@version = res[1]
-			end
-			def method_missing(action, *args)
-				res = find_in_file(fullpath, "#{action}=(.*)")
-				return nil if not res
-				return res[1]
-			end
-			def write_file(f)
-				f.write("#{PKGNAME}=#{@pkgname}\n")
-				f.write("#{VERSION}=#{@version}\n")
-			end
-			def write(k, v)
-				raise "invalid setting path #{fullpath}" if not File.exists?(fullpath)
-				f = File.open("#{fullpath}.tmp", "w")
-				raise "fail to open tmp file" if not f
-				replace = false
-				File.open(fullpath).readlines().each do |l|
-					if l[0..k.length] == k then
-						f.write("#{k}=#{v}")
-						replace = true
-					else
-						f.write l
-					end
-				end
-				if not replace then
-					f.write("#{k}=#{v}")
-				end
-				f.close
-				sh "mv #{fullpath}.tmp #{fullpath}"
-			end
-		end
 		attr :path
 		#attr :setting
 		def initialize(path)
 			@path = path
-			#@setting = Toad::Project::Setting.new(path)
 		end
 		def self.system_path?(path)
 			["submodules", "scripts", "config", "test"].each do |name|
@@ -124,6 +53,7 @@ module Toad
                                 sh "git submodule update --init --recursive"
                                 sh "sudo rake install && rake test:unit && rake test:bench"
                         end
+			sh "killall -9 yue" # assure all yue server is killed.
                 end
 		def create(config, pkgname)
 			arch = config.android.arch
