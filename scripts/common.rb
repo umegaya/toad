@@ -73,9 +73,8 @@ module Kernel
 			gem = (gem or name)
 			version = (version ? " -v #{version}" : "")
 			raise $? unless system "sudo gem install #{gem}#{version}"
-			gem_dir = File.dirname File.dirname `gem which #{name}`
-			$:.unshift "#{gem_dir}/bin"
-			$:.unshift "#{gem_dir}/lib"
+			require 'rubygems'
+			Gem.clear_paths
 			retry
 		end
 	end
