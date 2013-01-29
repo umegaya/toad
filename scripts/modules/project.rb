@@ -53,7 +53,11 @@ module Toad
                                 sh "git submodule update --init --recursive"
                                 sh "sudo rake install && rake test:unit && rake test:bench"
                         end
-			sh "killall -9 yue" # assure all yue server is killed.
+			begin 
+				sh "killall -9 yue" # assure all yue server is killed.
+			rescue => e
+				# maybe no process. ok.
+			end
                 end
 		def create(config, pkgname)
 			arch = config.android.arch
