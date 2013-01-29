@@ -1,4 +1,8 @@
-module Toad 
+module Toad
+	BasicObject = Object
+	if class_exists?("::BasicObject") then
+		BasicObject = ::BasicObject
+	end
 	class Config < BasicObject
 		@@instance = nil
 		def self.instance

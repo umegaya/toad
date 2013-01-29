@@ -44,7 +44,7 @@ module Toad
 			if not ins then
 				ins = Toad::Cloud.run(
 					config.cloud.image, 
-					config.cloud.type, 
+					config.cloud.instance_type, 
 					config.cloud.keypair,
 					config.cloud.security,
 					extract_userdata(config))

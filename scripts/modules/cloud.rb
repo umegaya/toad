@@ -38,7 +38,7 @@ module Toad
 					data["imageId"],
 					data["instanceType"],
 					data["ipAddress"],
-					data["privateIpAddress"],
+					data["privateIpAddress"]
 				)
 			end
 			def self.allocate_ip(id)

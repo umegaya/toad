@@ -31,7 +31,13 @@ module Kernel
 		sh "sed -e 's#{sep}#{pattern}#{sep}#{replace}#{sep}g' #{path} > #{path}.tmp"
 		sh "mv #{path}.tmp #{dest}"
 	end
-	 def find_in_file(f, pattern)
+	def class_exists?(class_name)
+		klass = Module.const_get(class_name)
+		return klass.is_a?(Class)
+	rescue NameError
+		return false
+	end
+	def find_in_file(f, pattern)
 		need_close = false
 		if f.is_a?(String) then
                 	return nil if not File.exists?(f)
