@@ -33,7 +33,7 @@ local iter = 0
 yue.client(function (cl)
 	local addr = 'tcp://' .. config.project.dest_ip .. ':8888'
 	print('connect to ' .. addr)
-	local c = yue.open(addr).procs
+	local c = yue.open(addr)
 	while true do
 		local t = now()
 		local df = c.ping(t) - now()
