@@ -100,10 +100,10 @@ module Toad
 				
 				log "copy iOS files"
 				sh "cp -rf #{config.path.client_sdk}/xcode #{@path}/client/ios"
-				Dir.chdir("#{@path}/client/ios") do |path|
+				Dir.chdir("#{@path}/client/") do |path|
 					sh "ln -s ../../#{config.path.client_sdk}/src"
 					sh "ln -s ../../#{config.path.client_sdk}/3rdparty"
-					sh "cp -f ios/bootstrap/moai-target ios/moai-target"
+					sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
 				end
 				
 				log "copy server files"
