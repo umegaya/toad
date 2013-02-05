@@ -82,6 +82,12 @@ module Toad
 
 			log "init ios client"
 				# TODO
+				sh "cp -rf #{config.path.client_sdk}/xcode #{@path}/client/ios"
+				Dir.chdir("#{@path}/client/ios") do |path|
+					sh "ln -s ../../${config.path.client_sdk}/src"
+					sh "ln -s ../../${config.path.client_sdk}/3rdparty"
+					sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
+				end
 
 			log "create directory"
 				sh "mkdir -p ./#{@path}/client/"
