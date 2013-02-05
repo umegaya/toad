@@ -1,3 +1,4 @@
+require "rubygems"
 # require all modules under modules directory
 require "./scripts/common.rb"
 Dir.glob("./scripts/modules/*.rb") do |file|
