@@ -81,13 +81,6 @@ module Toad
 				end
 
 			log "init ios client"
-				# TODO
-				sh "cp -rf #{config.path.client_sdk}/xcode #{@path}/client/ios"
-				Dir.chdir("#{@path}/client/ios") do |path|
-					sh "ln -s ../../${config.path.client_sdk}/src"
-					sh "ln -s ../../${config.path.client_sdk}/3rdparty"
-					sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
-				end
 
 			log "create directory"
 				sh "mkdir -p ./#{@path}/client/"
@@ -96,6 +89,7 @@ module Toad
 				sh "mkdir -p ./#{@path}/config/local/"
 
 			log "copy files"
+				log "copy android files"
 				sh "mv #{config.path.client_sdk}/ant/untitled-host ./#{@path}/client/android"
 				sh "cp -rv #{scafold}/* ./#{@path}/src/"
 				["client", "server"].each do |path|
@@ -103,6 +97,16 @@ module Toad
 						sh "ln -s ../../config"
 					end
 				end
+				
+				log "copy iOS files"
+				sh "cp -rf #{config.path.client_sdk}/xcode #{@path}/client/ios"
+				Dir.chdir("#{@path}/client/ios") do |path|
+					sh "ln -s ../../#{config.path.client_sdk}/src"
+					sh "ln -s ../../#{config.path.client_sdk}/3rdparty"
+					sh "cp -f ios/bootstrap/moai-target ios/moai-target"
+				end
+				
+				log "copy server files"
 				sh "cp -rv #{deploy_tmpl} ./#{@path}/server/"
 				sh "cp #{Config.instance.cloud.keyfile} ./#{@path}/src/server/key.pem"
 				# write setting
