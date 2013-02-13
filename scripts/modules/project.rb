@@ -104,6 +104,7 @@ module Toad
 					sh "ln -s ../../#{config.path.client_sdk}/src"
 					sh "ln -s ../../#{config.path.client_sdk}/3rdparty"
 					sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
+					sh "cp -f ios/ios/bootstrap/moai-target-stub-server ios/ios/moai-target-stub-server"
 				end
 				
 				log "copy server files"
