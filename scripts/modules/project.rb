@@ -59,12 +59,26 @@ module Toad
 				# maybe no process. ok.
 			end
 		end
+		def android_dir()
+			return @path + "/client/android"
+		end
 		def self.init_android_client(config, pkgname)
 			arch = config.android.arch
 			ndk = config.android.ndk
 			Dir.chdir("#{config.path.client_sdk}/ant") do |path|
 				sh "./make-host.sh -p #{pkgname} -a #{arch} -l #{ndk}"
 			end
+		end
+		def configure_android_project(pkgname)
+			appname = pkgname.split('.').last
+			sdkdir = File.dirname(File.dirname `which adb`)
+			
+			global_setting = android_dir + "/settings-global.sh"
+			replace_file(global_setting, "untitled", "#{appname}")
+			# sdkdir contains /, so use | for sed command seperator.
+			local_setting = android_dir + "/settings-local.sh"
+			replace_file(local_setting, "android_sdk_root=\"\"", "android_sdk_root=\"#{sdkdir}\"", "|")
+			replace_file(local_setting, "src_dirs=(.*)", "src_dirs=(\"../../src/client/\")", "|")
 		end
 		def copy_ios_files(config, update)
 			sh "rsync -avzL #{config.path.client_sdk}/xcode/ #{@path}/client/ios"
@@ -75,8 +89,8 @@ module Toad
 						sh "ln -s ../../#{config.path.client_sdk}/3rdparty"
 					end
 				else
-					sh "rsync -avzL ../../#{config.path.client_sdk}/src src"
-					sh "rsync -avzL ../../#{config.path.client_sdk}/3rdparty 3rdparty"
+					sh "rsync -avzL ../../#{config.path.client_sdk}/src/ src"
+					sh "rsync -avzL ../../#{config.path.client_sdk}/3rdparty/ 3rdparty"
 				end
 				sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
 				sh "cp -f ios/ios/bootstrap/moai-target-stub-server ios/ios/moai-target-stub-server"
@@ -87,19 +101,26 @@ module Toad
 			sh "cp -rv #{deploy_tmpl} ./#{@path}/server/"
 			sh "cp #{Config.instance.cloud.keyfile} ./#{@path}/src/server/key.pem"
 		end
+		def copy_scafold_files
+			scafold = "./scripts/skel/scafold"
+			sh "cp -rv #{scafold}/* ./#{@path}/src/"
+			["client", "server"].each do |path|
+				Dir.chdir("./#{@path}/src/#{path}") do |p|
+					sh "ln -s ../../config"
+				end
+			end
+		end
 		def update(config, pkgname)
-			init_setting config,pkgname
-			init_android_client config, pkgname
-			sh "rsync -avzL #{config.path.client_sdk}/ant/untitled-host ./#{@path}/client/android"
+			self.class.init_android_client config, pkgname
+			sh "rsync -avzL #{config.path.client_sdk}/ant/untitled-host/ ./#{@path}/client/android"
 			sh "rm -rf #{config.path.client_sdk}/ant/untitled-host"
 			copy_ios_files config, true
 			copy_server_files config
+			configure_android_project pkgname
+			init_setting config,pkgname
+			config.inspect
 		end
 		def create(config, pkgname)
-			sdkdir = File.dirname(File.dirname `which adb`)
-			appname = pkgname.split('.').last
-			scafold = "./scripts/skel/scafold"
-
 			log "init module dependency"
 				sh "git submodule update --init --recursive"
 
@@ -107,7 +128,6 @@ module Toad
 				self.class.init_server config
 
 			log "init android client"
-				android_dir = @path + "/client/android"
 				self.class.init_android_client config, pkgname
 
 			log "init ios client"
@@ -120,12 +140,7 @@ module Toad
 
 			log "copy files"
 				log "create scafold"
-				sh "cp -rv #{scafold}/* ./#{@path}/src/"
-				["client", "server"].each do |path|
-					Dir.chdir("./#{@path}/src/#{path}") do |p|
-						sh "ln -s ../../config"
-					end
-				end
+				copy_scafold_files
 
 				log "copy android files"
 				sh "mv #{config.path.client_sdk}/ant/untitled-host ./#{@path}/client/android"
@@ -140,18 +155,16 @@ module Toad
 				init_setting(config, pkgname)
 
 			log "auto configuration in progress"
-				global_setting = android_dir + "/settings-global.sh"
-				replace_file(global_setting, "untitled", "#{appname}")
-				# sdkdir contains /, so use | for sed command seperator.
-				local_setting = android_dir + "/settings-local.sh"
-				replace_file(local_setting, "android_sdk_root=\"\"", "android_sdk_root=\"#{sdkdir}\"", "|")
-				replace_file(local_setting, "src_dirs=(.*)", "src_dirs=(\"../../src/client/\")", "|")
+				configure_android_project pkgname
 
 			log "done!!"
 			return self
 		end
 		def init_setting(config, pkgname)
-			c = Config.new(false)
+			c = config["project"]
+			if not c then
+				c = Config.new(false)
+			end
 			c["toad_version"] = (sh "git show -s --format=%H", true).chop
 			c["pkgname"] = pkgname
 			config["project"] = c

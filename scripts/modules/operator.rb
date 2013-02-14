@@ -39,12 +39,19 @@ module Toad
 				gsub(/%AWS_ACCESS_KEY%/, ENV['AWS_ACCESS_KEY']).
 				gsub(/%AWS_SECRET_KEY%/, ENV['AWS_SECRET_KEY'])
 		end
+        def get_toad_version(ins)
+            rev = ins.ssh "cd /toad && git show -s --format=%H", true
+            p rev
+            return rev.chop
+        end
 		def deploy_server(config)
 			ins = instances
 			if (not ins) or
                 (get_toad_version(ins) != config.project.toad_version) then
                 if ins then
-                    ins.stop
+                    raise "it should not be occurs"
+                    return
+                    #ins.stop
                 end
 				ins = Toad::Cloud.run(
 					config.cloud.image, 
