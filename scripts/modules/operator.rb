@@ -41,7 +41,11 @@ module Toad
 		end
 		def deploy_server(config)
 			ins = instances
-			if not ins then
+			if (not ins) or
+                (get_toad_version(ins) != config.project.toad_version) then
+                if ins then
+                    ins.stop
+                end
 				ins = Toad::Cloud.run(
 					config.cloud.image, 
 					config.cloud.instance_type, 
