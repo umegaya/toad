@@ -49,9 +49,7 @@ module Toad
 			if (not ins) or
                 (get_toad_version(ins) != config.project.toad_version) then
                 if ins then
-                    raise "it should not be occurs"
-                    return
-                    #ins.stop
+                    ins.stop
                 end
 				ins = Toad::Cloud.run(
 					config.cloud.image, 
