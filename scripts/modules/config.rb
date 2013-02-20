@@ -1,3 +1,5 @@
+require File.dirname(__FILE__) + "/../common.rb"
+
 module Toad
 	BasicObject = Object
 	if class_exists?("::BasicObject") then
