@@ -29,7 +29,6 @@ module Toad
 		def self.open(config, pkgname, path = nil)
 			project = self.search_by_pkgname(pkgname)
 			if not project then
-				raise InvalidArgumentError
 				path = ROOTPATH + "/" + (path or pkgname)
 				raise "already exist #{path}" if File.exists?(path)
 				project = self.new(path)
