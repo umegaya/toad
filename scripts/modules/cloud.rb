@@ -202,12 +202,13 @@ FINISH_SH
 				user = Config.instance.cloud.user
 				Kernel.sh "ssh #{SSH_OPT} -i #{keyfile} #{user}@#{public_ip} \"#{command}\"", output
 			end
-			def rsync(list, keyfile = nil)
+			def rsync(list, option = nil, keyfile = nil)
 				wait_ssh_enable
 				keyfile = (keyfile or Config.instance.cloud.keyfile)
+				option = (option or "")
 				user = Config.instance.cloud.user
 				list.each do |k,v|
-					Kernel.sh "rsync -avzL #{k} -e 'ssh #{SSH_OPT} -i #{keyfile}' #{user}@#{public_ip}:#{v}"
+					Kernel.sh "rsync -avzL #{option} #{k} -e 'ssh #{SSH_OPT} -i #{keyfile}' #{user}@#{public_ip}:#{v}"
 				end
 			end
                 end

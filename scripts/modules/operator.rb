@@ -68,16 +68,16 @@ module Toad
 				raise "fail to create instance for #{@project.path}"
 			end
 		end
-		def rsync(ins, list)
+		def rsync(ins, list, option = nil)
 			tmp = {}
 			path = @project.path
 			list.each do |k,v|
 				tmp["#{path}/#{k}"] = v
 			end
-			ins.rsync(tmp)
+			ins.rsync(tmp, option)
 		end
 		def update_server(ins)
-			rsync(ins, { "src/server" => "~/" })
+			rsync(ins, { "src/server" => "~/" }, "--delete")
 			begin
 				out = ins.ssh "which yue", true
 			rescue CommandError => e
