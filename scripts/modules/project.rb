@@ -1,8 +1,8 @@
 require 'digest/md5'
 module Toad
 	class Project
+		ROOTPATH = "./projects"
 		attr :path
-		#attr :setting
 		def initialize(path)
 			@path = path
 		end
@@ -13,11 +13,12 @@ module Toad
 			false
 		end
 		def self.search_by_pkgname(pkgname)
-			Dir.glob('./*') do |file|
+			Dir.glob("#{ROOTPATH}/*") do |file|
 				next if not File.directory?(file)
 				next if system_path?(file)
 				setting_file = "#{file}/config/*"
 				c = Config.new.open(setting_file)
+				p "search_by_pkgname:" + c.project.pkgname + "vs" + pkgname
 				if c.project.pkgname == pkgname then
 					project = self.new(file)
 					return project
@@ -28,7 +29,8 @@ module Toad
 		def self.open(config, pkgname, path = nil)
 			project = self.search_by_pkgname(pkgname)
 			if not project then
-				path = (path or pkgname)
+				raise InvalidArgumentError
+				path = ROOTPATH + "/" + (path or pkgname)
 				raise "already exist #{path}" if File.exists?(path)
 				project = self.new(path)
 				project.create(config, pkgname)
@@ -81,16 +83,18 @@ module Toad
 			replace_file(local_setting, "src_dirs=(.*)", "src_dirs=(\"../../src/client/\")", "|")
 		end
 		def copy_ios_files(config, update)
-			sh "rsync -avzL #{config.path.client_sdk}/xcode/ #{@path}/client/ios"
+			sh "rsync -avzL --delete --exclude=ios/lua/* #{config.path.client_sdk}/xcode/ #{@path}/client/ios"
 			Dir.chdir("#{@path}/client/") do |path|
-				if config.debug.develop_mode then
+				# TODO: ../../../ is @path dependent value. remove this. (at least derived from @path)
+				client_sdk_root="../../../#{config.path.client_sdk}"
+				if config.debug.develop_mode or File.symlink?("src") then
 					if not update then
-						sh "ln -s ../../#{config.path.client_sdk}/src"
-						sh "ln -s ../../#{config.path.client_sdk}/3rdparty"
+						sh "ln -s #{client_sdk_root}/src"
+						sh "ln -s #{client_sdk_root}/3rdparty"
 					end
 				else
-					sh "rsync -avzL ../../#{config.path.client_sdk}/src/ src"
-					sh "rsync -avzL ../../#{config.path.client_sdk}/3rdparty/ 3rdparty"
+					sh "rsync -avzL --delete #{client_sdk_root}/src/ src"
+					sh "rsync -avzL --delete #{client_sdk_root}/3rdparty/ 3rdparty"
 				end
 				sh "cp -f ios/ios/bootstrap/moai-target ios/ios/moai-target"
 				sh "cp -f ios/ios/bootstrap/moai-target-stub-server ios/ios/moai-target-stub-server"
@@ -112,7 +116,7 @@ module Toad
 		end
 		def update(config, pkgname)
 			self.class.init_android_client config, pkgname
-			sh "rsync -avzL #{config.path.client_sdk}/ant/untitled-host/ ./#{@path}/client/android"
+			sh "rsync -avzL --delete #{config.path.client_sdk}/ant/untitled-host/ ./#{@path}/client/android"
 			sh "rm -rf #{config.path.client_sdk}/ant/untitled-host"
 			copy_ios_files config, true
 			copy_server_files config
