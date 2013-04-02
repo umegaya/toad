@@ -5,12 +5,7 @@ module Toad
 		INIT_FILE_SIGN = "TOAD2013"
 		class EC2
 			require2 "AWS", "amazon-ec2"
-			@@ec2 = AWS::EC2::Base.new({
-				:access_key_id => ENV['AWS_ACCESS_KEY'], :secret_access_key => ENV['AWS_SECRET_KEY']
-			})
-			p "ec2_url : #{ENV['EC2_URL']}"
-			p "default host : #{AWS::EC2::DEFAULT_HOST}"
-			@@addresses = @@ec2.describe_addresses
+			@@ec2 = nil
 
 			def self.log(str)
 				p str
@@ -21,9 +16,22 @@ module Toad
 			def self.find_available_ip
 				return nil
 			end
+			def self.API()
+				if not @@ec2 then
+					access_key = CONFIG.cloud.aws_access_key or ENV['AWS_ACCESS_KEY']
+					secret_key = CONFIG.cloud.aws_secret_key or ENV['AWS_SECRET_KEY']
+					p "keypair:" + access_key + "|" + secret_key[0,8] + "..."
+					@@ec2 = AWS::EC2::Base.new({
+						:access_key_id => access_key, :secret_access_key => secret_key
+					})
+					p "ec2_url : #{ENV['EC2_URL']}"
+					p "default host : #{AWS::EC2::DEFAULT_HOST}"
+				end
+				return @@ec2
+			end
 			
 			def self.get(id)
-				result = @@ec2.describe_instances({
+				result = API().describe_instances({
 					:instance_id => id
 				})
 				self.pprint result
@@ -45,12 +53,12 @@ module Toad
 				ip = self.find_available_ip
 				self.log "existing ip = #{ip}"
 				if not ip
-					result = @@ec2.allocate_address
+					result = API().allocate_address
 					self.pprint result
 					ip = result["publicIp"]
 					self.log "allocated ip = #{ip}"
 				end
-				result = @@ec2.associate_address({
+				result = API().associate_address({
 					:instance_id => id,
 					:public_ip => ip,
 				})
@@ -73,7 +81,7 @@ FINISH_SH
 					puts userdata
 				end
 				begin
-					result = @@ec2.run_instances({
+					result = API().run_instances({
 						:image_id => image,
 						:instance_type => type,
 						:user_data => userdata,
@@ -105,7 +113,7 @@ FINISH_SH
 					end
 					if ip then
 						self.log "release ip: #{ip}"
-						@@ec2.release_address({
+						API().release_address({
 							:public_ip => ip
 						})
 					end
@@ -116,7 +124,7 @@ FINISH_SH
 				if instance.is_a?(Instance) then
 					instance = instance.id
 				end
-				@@ec2.terminate_instances({
+				API().terminate_instances({
 					:instance_id => instance,
 				})
 			end
