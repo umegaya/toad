@@ -170,7 +170,7 @@ module Toad
 			c["toad_version"] = (sh "git show -s --format=%H", true).chop
 			c["pkgname"] = pkgname
 			config["project"] = c
-			config.write "./#{@path}/config"
+			config.write "./#{@path}/config/local"
 		end
 		def add_setting(settings)
 			c = Config.new.open("./#{@path}/config/*")
