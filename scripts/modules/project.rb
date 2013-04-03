@@ -18,7 +18,6 @@ module Toad
 				next if system_path?(file)
 				setting_file = "#{file}/config/*"
 				c = Config.new.open(setting_file)
-				p "search_by_pkgname:" + c.project.pkgname + "vs" + pkgname
 				if c.project.pkgname == pkgname then
 					project = self.new(file)
 					return project

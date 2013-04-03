@@ -36,8 +36,8 @@ module Toad
 			return data.
 				gsub(/%REVISION%/, config.project.toad_version).
 				gsub(/%DEPLOY_USER%/, config.cloud.user).
-				gsub(/%AWS_ACCESS_KEY%/, ENV['AWS_ACCESS_KEY']).
-				gsub(/%AWS_SECRET_KEY%/, ENV['AWS_SECRET_KEY'])
+				gsub(/%AWS_ACCESS_KEY%/, (config.cloud.aws_access_key or ENV['AWS_ACCESS_KEY'])).
+				gsub(/%AWS_SECRET_KEY%/, (config.cloud.aws_secret_key or ENV['AWS_SECRET_KEY']))
 		end
         def get_toad_version(ins)
             rev = ins.ssh "cd /toad && git show -s --format=%H", true
