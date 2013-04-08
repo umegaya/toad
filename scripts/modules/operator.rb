@@ -53,13 +53,13 @@ module Toad
 			return rev.chop
 		end
 		def deploy_server(config, kind)
-			p "deploy_server:" + kind
+			p "deploy_server:" + kind.to_s
 			ins = instances kind
 			if (not ins) or (get_toad_version(ins) != config.project.toad_version) then
 				if ins then
 					ins.stop
 				end
-				cloud_config = config[kind]
+				cloud_config = (kind ? config[kind] : nil)
 				p "running instance config:" + 
 					((cloud_config and cloud_config.image) ? cloud_config.image : config.cloud.image) + "," +
 					((cloud_config and cloud_config.instance_type) ? cloud_config.instance_type : config.cloud.instance_type) + "," +
@@ -75,9 +75,9 @@ module Toad
 
 				key_instance_id = (kind ? (kind.to_s + "_instance_id") : (:instance_id))
 				key_dest_ip = (kind ? (kind.to_s + "_dest_ip") : (:dest_ip))
-				p "new keys:" + key_instance_id + "/" + key_dest_ip
+				p "new keys:" + key_instance_id.to_s + "/" + key_dest_ip.to_s
 				@project.add_setting({
-					key_instance_id => "i-abcdefgh", #ins.id,
+					key_instance_id => ins.id,
 					key_dest_ip => ins.public_ip
 				})
 			end
