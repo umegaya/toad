@@ -173,12 +173,12 @@ module Toad
 			config.write "./#{@path}/config/local"
 		end
 		def add_setting(settings)
-			c = Config.new.open("./#{@path}/config/*")
+			c = Config.new.open("./#{@path}/config/*").open("./#{@path}/config/local/*")
 			settings.each do |k,v|
 				c.project[k] = v
 			end
-			c.write "./#{@path}/config"
-			Config.instance.open("./#{@path}/config/*")
+			c.write "./#{@path}/config/local/"
+			Config.instance.open("./#{@path}/config/local/*")
 		end
 		def tarball(paths)
 			tmppath = "/tmp/#{rand(0xFFFFFFFF).to_s + Process.pid.to_s}.tgz"

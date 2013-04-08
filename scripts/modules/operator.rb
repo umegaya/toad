@@ -3,12 +3,12 @@ module Toad
 		def initialize(project)
 			@project = project
 		end
-		def deploy(config, what = nil)
+		def deploy(config, what = nil, kind = nil)
 			[:server, :android, :ios].each do |type|
 				next if (what and what.to_sym != type)
 				case type
 				when :server
-					deploy_server config
+					deploy_server config, kind
 				when :android
 					deploy_android config
 				when :ios
@@ -24,42 +24,61 @@ module Toad
 				sh "adb shell"
 			when :ios
 				raise ArgumentError, "ios login not supports"
+			else
+				ins = instances(what)
+				if ins then
+					ins.login
+				end
 			end
-				
 		end
-		def instances
-			id = Config.instance.project.instance_id
+		def instances(kind = nil)
+			key = (kind ? (kind.to_s + "_instance_id").to_sym : (:instance_id))
+			id = Config.instance.project[key]
 			return id ? Toad::Cloud::Instance.get(id) : nil
 		end
-		def extract_userdata(config)
+		def extract_userdata(config, cloud_config = nil)
+			if not cloud_config then
+				cloud_config = config.cloud
+			end
 			data = IO.read(config.cloud.userdata)
 			return data.
 				gsub(/%REVISION%/, config.project.toad_version).
-				gsub(/%DEPLOY_USER%/, config.cloud.user).
-				gsub(/%AWS_ACCESS_KEY%/, (config.cloud.aws_access_key or ENV['AWS_ACCESS_KEY'])).
-				gsub(/%AWS_SECRET_KEY%/, (config.cloud.aws_secret_key or ENV['AWS_SECRET_KEY']))
+				gsub(/%DEPLOY_USER%/, (cloud_config.user or config.cloud.user)).
+				gsub(/%AWS_ACCESS_KEY%/, (cloud_config.aws_access_key or config.cloud.aws_access_key or ENV['AWS_ACCESS_KEY'])).
+				gsub(/%AWS_SECRET_KEY%/, (cloud_config.aws_secret_key or config.cloud.aws_secret_key or ENV['AWS_SECRET_KEY']))
 		end
-        def get_toad_version(ins)
-            rev = ins.ssh "cd /toad && git show -s --format=%H", true
-            p rev
-            return rev.chop
-        end
-		def deploy_server(config)
-			ins = instances
-			if (not ins) or
-                (get_toad_version(ins) != config.project.toad_version) then
-                if ins then
-                    ins.stop
-                end
+		def get_toad_version(ins)
+			rev = ins.ssh "cd /toad && git show -s --format=%H", true
+			p rev
+			return rev.chop
+		end
+		def deploy_server(config, kind)
+			p "deploy_server:" + kind
+			ins = instances kind
+			if (not ins) or (get_toad_version(ins) != config.project.toad_version) then
+				if ins then
+					ins.stop
+				end
+				cloud_config = config[kind]
+				p "running instance config:" + 
+					((cloud_config and cloud_config.image) ? cloud_config.image : config.cloud.image) + "," +
+					((cloud_config and cloud_config.instance_type) ? cloud_config.instance_type : config.cloud.instance_type) + "," +
+					((cloud_config and cloud_config.keypair) ? cloud_config.keypair : config.cloud.keypair) + "," +
+					((cloud_config and cloud_config.security) ? cloud_config.security : config.cloud.security) + ","
+					
 				ins = Toad::Cloud.run(
-					config.cloud.image, 
-					config.cloud.instance_type, 
-					config.cloud.keypair,
-					config.cloud.security,
-					extract_userdata(config))
+					(cloud_config and cloud_config.image) ? cloud_config.image : config.cloud.image, 
+					(cloud_config and cloud_config.instance_type) ? cloud_config.instance_type : config.cloud.instance_type, 
+					(cloud_config and cloud_config.keypair) ? cloud_config.keypair : config.cloud.keypair,
+					(cloud_config and cloud_config.security) ? cloud_config.security : config.cloud.security,
+					extract_userdata(config, cloud_config))
+
+				key_instance_id = (kind ? (kind.to_s + "_instance_id") : (:instance_id))
+				key_dest_ip = (kind ? (kind.to_s + "_dest_ip") : (:dest_ip))
+				p "new keys:" + key_instance_id + "/" + key_dest_ip
 				@project.add_setting({
-					:instance_id => ins.id,
-					:dest_ip => ins.public_ip
+					key_instance_id => "i-abcdefgh", #ins.id,
+					key_dest_ip => ins.public_ip
 				})
 			end
 			if ins then
