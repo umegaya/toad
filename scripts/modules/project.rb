@@ -81,7 +81,7 @@ module Toad
 			replace_file(local_setting, "src_dirs=(.*)", "src_dirs=(\"../../src/client/\")", "|")
 		end
 		def copy_ios_files(config, update)
-			sh "rsync -avzL --delete --exclude=ios/lua/* #{config.path.client_sdk}/xcode/ #{@path}/client/ios"
+			sh "rsync -avzL --exclude=ios/lua/* #{config.path.client_sdk}/xcode/ #{@path}/client/ios"
 			Dir.chdir("#{@path}/client/") do |path|
 				# TODO: ../../../ is @path dependent value. remove this. (at least derived from @path)
 				client_sdk_root="../../../#{config.path.client_sdk}"
@@ -114,7 +114,7 @@ module Toad
 		end
 		def update(config, pkgname)
 			self.class.init_android_client config, pkgname
-			sh "rsync -avzL --delete #{config.path.client_sdk}/ant/untitled-host/ ./#{@path}/client/android"
+			sh "rsync -avzL #{config.path.client_sdk}/ant/untitled-host/ ./#{@path}/client/android"
 			sh "rm -rf #{config.path.client_sdk}/ant/untitled-host"
 			copy_ios_files config, true
 			copy_server_files config
