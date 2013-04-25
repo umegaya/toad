@@ -189,6 +189,19 @@ FINISH_SH
 				ssh "sudo rm -f #{INIT_FILE_PATH}"
 				return self
 			end
+			def exec_until_success(cmd, timeout = 600)
+				while true
+					begin
+						ssh cmd
+						break
+					rescue CommandError => e
+						log e
+					end
+					sleep 3
+					timeout = (timeout - 3)
+					raise "wait success timeout" if timeout < 0
+				end
+			end
 			SSH_OPT = "-o \"StrictHostKeyChecking no\""
 			def cp(list, keyfile = nil)
 				wait_ssh_enable

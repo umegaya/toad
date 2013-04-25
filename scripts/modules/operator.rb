@@ -96,6 +96,12 @@ module Toad
 			ins.rsync(tmp, option)
 		end
 		def update_server(ins)
+			first_deploy = false
+			begin
+				out = ins.ssh "ls ~/server"
+			rescue CommandError => e
+				first_deploy = true
+			end
 			rsync(ins, { "src/server" => "~/" }, "--delete")
 			begin
 				out = ins.ssh "which yue", true
@@ -107,6 +113,14 @@ module Toad
 				end
 			end
 			ins.wait_cloud_init if ((out == nil) or (out.chop != "/usr/local/bin/yue"))
+			if first_deploy then
+				begin
+					ins.ssh "bash ~/server/init.sh"
+                    ins.exec_until_success "bash ~/server/check.sh"
+				rescue CommandError => e
+					log e # no special initialization
+				end
+			end
 			begin
 				ins.ssh "sudo stop yue"
 			rescue CommandError => e
