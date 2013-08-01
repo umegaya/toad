@@ -1,10 +1,7 @@
 require File.dirname(__FILE__) + "/../common.rb"
 
 module Toad
-	BasicObject = Object
-	if class_exists?("::BasicObject") then
-		BasicObject = ::BasicObject
-	end
+	BasicObject = class_exists?("::BasicObject") ? ::BasicObject : Object
 	class Config < BasicObject
 		@@instance = nil
 		def self.instance
