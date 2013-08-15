@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + "/../common.rb"
+require 'json'
 
 module Toad
 	BasicObject = class_exists?("::BasicObject") ? ::BasicObject : Object
@@ -19,8 +20,8 @@ module Toad
 			::Dir.glob(path) do |file|
 				key = ::File.basename(file)
 				next if ::File.directory?(file)
-				c = (self[key] or (self[key] = Config.new(false)))
-				c.instance_eval ::File.open(file).read.gsub /\=/, ' '
+				fval = ::File.open(file).read
+				load ::JSON.parse(fval), key
 			end
 			return self
 		end
@@ -61,13 +62,44 @@ module Toad
 		end
 		def write(to)
 			raise ArgumentError, "not root config" unless @root
-			@hash.each do |name,config|
-				::File.open("#{to}/#{name}", "w") do |f|
-					config.each do |k,v|
-						f.write("#{k}=#{v.inspect}\n")
-					end	
-				end
+			@hash.each do |name, config|
+				fval = ::JSON.pretty_generate(::JSON.parse(config.to_json))
+				f = ::File.open("#{to}/#{name}", "w")
+				f.write(fval)
+				f.close
 			end
+			return true
+		end
+		def load(data, key = nil)
+			if data.is_a?(::Hash) then
+				c = key ? (self[key] or (self[key] = Config.new(false))) : Config.new(false)
+				data.each do | k, v |
+					c.load v, k
+				end
+				data = c
+			elsif data.is_a?(::Array) then
+				a = ::Array.new
+				data.each do | v |
+					a.push(load v)
+				end
+				data = a
+			end
+			return data unless key
+			self[key] = data
+		end
+		def dup()
+			c = Config.new(false)
+			self.each do | k, v |
+				c[k] = v
+			end
+			return c
+		end
+		def respond_to?(type = nil)
+			@respond_to = type if type
+			return @respond_to
+		end
+		def to_json(js = nil)
+			return @hash.to_json js
 		end
 	end
 end

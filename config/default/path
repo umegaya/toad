@@ -1,3 +1,4 @@
-client_sdk="./submodules/moai"
-server_sdk="./submodules/yue"
-
+{
+    "client_sdk"    : "./submodules/moai",
+    "server_sdk"    : "./submodules/yue"
+}
