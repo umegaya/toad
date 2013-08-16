@@ -1,3 +1,4 @@
-arch="armeabi"
-ndk="android-10"
-
+{
+    "arch"  : "armeabi",
+    "ndk"   : "android-10"
+}

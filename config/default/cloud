@@ -1,8 +1,9 @@
-image="ami-f8a813f9"
-instance_type="t1.micro"
-keypair="gsg-keypair"
-keyfile="~/.ssh/id_rsa"
-security="default"
-user="ubuntu"
-userdata="./scripts/skel/deploy/userdata.sh"
-
+{
+    "image"         : "ami-f8a813f9",
+    "instance_type" : "t1.micro",
+    "keypair"       : "gsg-keypair",
+    "keyfile"       : "~/.ssh/id_rsa",
+    "security"      : "default",
+    "user"          : "ubuntu",
+    "userdata"      : "./scripts/skel/deploy/userdata.sh"
+}
