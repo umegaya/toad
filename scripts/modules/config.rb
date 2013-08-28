@@ -1,4 +1,4 @@
-require File.dirname(__FILE__) + "/../common.rb"
+require_relative "../common.rb"
 require 'json'
 
 module Toad
@@ -32,12 +32,14 @@ module Toad
 			klass == Config
 		end
 		def method_missing(action, *args)
+			::Kernel.raise ::NoMethodError, "undefined method `#{action}' for Toad::Config" unless action =~ /^\w+$/
 			k = action.to_sym
-			if args.length < 1 then
-				k = action.to_sym
+			if args.length == 0 then
 				@hash[k] or (@root ? (@hash[k] = Config.new(false)) : nil)
-			else
+			elsif args.length == 1
 				@hash[k] = args[0]
+			else
+				::Kernel.raise ::ArgumentError, "wrong number of arguments (#{args.count} for 1)"
 			end
 		end
 		def [] (k)
